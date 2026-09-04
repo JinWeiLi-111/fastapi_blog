@@ -1,0 +1,6 @@
+{
+  // djLint understands Jinja2 {% %} / {{ }} tags, unlike VSCode's built-in
+  // HTML formatter which mangles template indentation. Install it from the
+  // extension panel — VSCode will prompt because it's listed below.
+  "recommendations": ["monosans.djlint", "charliermarsh.ruff"]
+}
