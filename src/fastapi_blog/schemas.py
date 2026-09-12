@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from fastapi_blog.auth import verify_access_token
+
 
 class UserBase(BaseModel):
     username: str = Field(..., min_length=1, max_length=50)
@@ -42,7 +44,8 @@ class PostBase(BaseModel):
 
 
 class PostCreate(PostBase):
-    user_id: int  # TEMPORARY: This will be removed when authentication is implemented
+    # server side judge user_id from token, so no need to pass user_id in request body
+    pass
 
 
 class PostUpdate(BaseModel):

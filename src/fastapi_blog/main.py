@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
@@ -7,14 +8,13 @@ from fastapi.exception_handlers import (
     request_validation_exception_handler,
 )
 from fastapi.exceptions import RequestValidationError
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-# from starlette.exceptions import HTTPException as StarletteHTTPException
 import fastapi_blog.models as models
 from fastapi_blog.database import Base, engine, get_db
 from fastapi_blog.routers import posts, users
@@ -33,10 +33,14 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/media", StaticFiles(directory="media"), name="media")
+# Anchor package-relative resources (static/media/templates) to this file's
+# location so the app works regardless of the working directory.
+BASE_DIR = Path(__file__).resolve().parent
 
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+app.mount("/media", StaticFiles(directory=BASE_DIR / "media"), name="media")
+
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
@@ -92,7 +96,7 @@ async def user_posts_page(
     # assert user_id is valid
     if user_id < 0:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="post_id is not valid"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="user_id is not valid"
         )
 
     # assert user_id exists
@@ -117,6 +121,34 @@ async def user_posts_page(
         request=request,
         name="user_posts.html",
         context={"posts": posts, "user": user, "title": f"{user.username}'s Posts"},
+    )
+
+
+## login and register template_routes
+@app.get("/login", include_in_schema=False)
+async def login_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "login.html",
+        {"title": "Login"},
+    )
+
+
+@app.get("/register", include_in_schema=False)
+async def register_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "register.html",
+        {"title": "Register"},
+    )
+
+
+@app.get("/account", include_in_schema=False)
+async def account_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "account.html",
+        {"title": "Account"},
     )
 
 
