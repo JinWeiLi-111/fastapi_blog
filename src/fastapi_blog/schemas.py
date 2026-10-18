@@ -1,8 +1,13 @@
+"""
+Schemas define the shape of API request and response bodies.
+
+1. Auto-validate incoming request JSON.
+2. Auto-serialize outgoing response JSON.
+"""
+
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-
-from fastapi_blog.auth import verify_access_token
 
 
 class UserBase(BaseModel):
@@ -17,7 +22,6 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=1, max_length=50)
     email: EmailStr | None = Field(default=None, max_length=120)
-    image_file: str | None = Field(default=None, min_length=1, max_length=200)
 
 
 class Token(BaseModel):
@@ -59,3 +63,69 @@ class PostResponse(PostBase):
     user_id: int
     date_posted: datetime
     author: UserPublic
+
+
+class PaginatedPostsResponse(BaseModel):
+    posts: list[PostResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr = Field(max_length=120)
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
+class LLMConfigCreate(BaseModel):
+    provider: str = Field(..., min_length=1, max_length=50)
+    base_url: str | None = Field(default=None, max_length=255)
+    model: str = Field(..., min_length=1, max_length=100)
+    api_key: str = Field(..., min_length=1, max_length=128)
+
+
+class LLMConfigUpdate(BaseModel):
+    provider: str | None = Field(..., min_length=1, max_length=50)
+    base_url: str | None = Field(default=None, max_length=255)
+    model: str | None = Field(default=None, min_length=1, max_length=255)
+
+
+class LLMConfigPublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    provider: str
+    base_url: str
+    model: str
+    has_api_key: bool
+    api_key_hints: str
+
+
+class ProviderInfo(BaseModel):
+    key: str
+    label: str
+    base_url: str
+    models: list[str]
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" | "assistant"
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+    history: list[ChatMessage] = []
+
+
+class AiPostDraft(BaseModel):
+    title: str
+    content: str

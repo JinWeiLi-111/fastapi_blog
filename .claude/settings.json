@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip show *)",
+      "Bash(curl -s http://127.0.0.1:8000/)",
+      "Bash(echo \"=== exit: $?\")",
+      "Bash(curl -s -o /dev/null -w \"utils.js: %{http_code}\\\\n\" http://127.0.0.1:8000/static/js/utils.js)",
+      "Bash(curl -s -o /dev/null -w \"auth.js: %{http_code}\\\\n\" http://127.0.0.1:8000/static/js/auth.js)",
+      "Bash(sqlite3 /Users/admin/fastapi_blog/blog.db \".tables\")",
+      "WebFetch(domain:docs.alibabacloud.com)",
+      "Bash(psql -U bloguser -d blog -c \"SELECT id, username, image_file FROM users ORDER BY id LIMIT 10;\")",
+      "Bash(/Users/admin/fastapi_blog/.venv/bin/python -c ' *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" \"https://fastapi-blog.oss-cn-beijing.aliyuncs.com/profile_pics/d0af8a2ae37c432f9ecf92708a025097.jpg\")",
+      "Bash(psql -U bloguser -d blog -c \"SELECT id, username, image_file FROM users WHERE image_file IS NOT NULL AND image_file <> '';\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" \"https://fastapi-blog.oss-cn-beijing.aliyuncs.com/profile_pics/a4bcc441d1e24b91909603996fa1dce5.jpg\")",
+      "Bash(curl -s \"https://fastapi-blog.oss-cn-beijing.aliyuncs.com/profile_pics/a4bcc441d1e24b91909603996fa1dce5.jpg\")",
+      "Bash(echo \"=== exit: $? ===\")",
+      "Bash(pg_isready -h localhost)",
+      "Bash(python3 -)",
+      "Bash(sort -t'|' -k2 -rn)",
+      "Bash(cat > *)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}
