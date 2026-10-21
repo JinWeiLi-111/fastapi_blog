@@ -40,5 +40,18 @@
   // the language server / debugger / running the FastAPI app all use it. If an
   // interpreter was already auto-selected, also run "Python: Select Interpreter"
   // in the Command Palette and pick the .venv once.
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  // Hide tool-generated cache/output directories from the Explorer file tree
+  // so they don't clutter the view. They still exist on disk and stay in
+  // .gitignore (below) — this just stops VSCode from showing them.
+  "files.exclude": {
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/.mypy_cache": true,
+    "**/__pycache__": true,
+    "**/.coverage": true,
+    "**/htmlcov": true,
+    "**/.claude": true,
+    "**/.venv": true,
+  }
 }

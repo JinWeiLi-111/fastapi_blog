@@ -465,7 +465,12 @@ ALL_TOOLS = [create_post]
 `create_agent`（来自 `langchain.agents`，langgraph 1.x 的推荐入口，替代已弃用的 `langgraph.prebuilt.create_react_agent`）一行构建 ReAct agent（LLM + tool-calling 循环），无需手写循环：
 
 ```python
+from collections.abc import Sequence
+
 from langchain.agents import create_agent
+from langchain_core.language_models import BaseChatModel
+from langchain_core.tools import BaseTool
+from langgraph.graph.state import CompiledStateGraph
 
 from fastapi_blog.agents.tools import ALL_TOOLS
 from fastapi_blog.agents.tools.base import AgentContext
@@ -475,11 +480,21 @@ You can create posts, list the user's posts, summarize posts, etc.
 Use the provided tools when appropriate. Always respond concisely."""
 
 
-def build_agent(llm, tools=None):
-    """构建一个 ReAct agent。
+def build_agent(
+    llm: BaseChatModel,
+    tools: Sequence[BaseTool] | None = None,
+) -> CompiledStateGraph:
+    """Build a ReAct agent bound to the per-user LLM.
 
-    llm: per-user ChatOpenAI（已绑定用户 key/model）
-    tools: 默认 ALL_TOOLS；多 agent 编排时各 agent 传入不同子集
+    Args:
+        llm: per-user chat model (e.g. the ChatOpenAI returned by
+            `build_chat_model`), already bound to the user's key/model.
+        tools: tool subset to expose; defaults to `ALL_TOOLS`. Pass a
+            different subset when orchestrating multiple agents.
+
+    Returns:
+        A compiled langgraph agent (CompiledStateGraph). Invoke via
+        `.ainvoke()` / `.astream()` / `.astream_events()` at run time.
     """
     return create_agent(
         model=llm,
